@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  db:
+    container_name: postgres
+    build: ./postgres
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres12345
+      - PGPASSWORD=postgres12345
+      - DATABASE_HOST=localhost
+      - POSTGRES_DB=digdag
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    ports:
+      - 15432:5432
+    tty: true
+  digdag:
+    container_name: digdag
+    build: ./digdag
+    volumes:
+      - ./digdag/workspace:/root/workspace
+      - ./data/digdag_tmp:/tmp # MacOSの場合必要
+    ports:
+      - "0.0.0.0:65432:65432"
+    entrypoint: >
+      sh -c "chmod 755 /root/startup.sh && /root/startup.sh && /bin/bash"
+    tty: true
+
+networks:
+  etl_networks:
